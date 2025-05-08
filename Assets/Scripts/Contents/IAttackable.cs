@@ -1,4 +1,4 @@
-namespace OnGame.Contents.Items
+namespace OnGame.Contents
 {
   public interface IAttackable
   {
