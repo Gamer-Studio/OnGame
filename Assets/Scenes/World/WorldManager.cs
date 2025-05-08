@@ -1,3 +1,4 @@
+using OnGame.Worlds;
 using UnityEngine;
 
 namespace OnGame.Scenes.World
@@ -5,6 +6,7 @@ namespace OnGame.Scenes.World
   public class WorldManager : MonoBehaviour
   {
     public static WorldManager Instance { get; private set; }
+    public Stage stage;
 
     private void Awake()
     {
@@ -13,5 +15,7 @@ namespace OnGame.Scenes.World
       else
         Destroy(gameObject);
     }
+    
+    
   }
 }
