@@ -2,15 +2,19 @@ using System;
 
 namespace OnGame.Utils
 {
+  public delegate T StatOperator<T>(T origin);
   [Serializable]
-  public class Stat
+  public class Stat<T>
   {
-    public float baseValue;
+    public T baseValue;
+    public T Value => oper(baseValue);
 
-    public float Value
+    public StatOperator<T> oper;
+    
+    public Stat(T baseValue, StatOperator<T> oper)
     {
-      get => baseValue;
-      set => baseValue = value;
+      this.baseValue = baseValue;
+      this.oper = oper;
     }
   }
 }
