@@ -11,10 +11,7 @@ namespace OnGame.Contents.Items
 
     public virtual Item Create()
     {
-      var result = new Item
-      {
-        type = ItemType.Default,
-      };
+      var result = new Item();
 
       return result;
     }
