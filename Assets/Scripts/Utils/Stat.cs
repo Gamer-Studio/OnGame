@@ -16,5 +16,7 @@ namespace OnGame.Utils
       this.baseValue = baseValue;
       this.oper = oper;
     }
+    
+    public static implicit operator T(Stat<T> stat) => stat.Value;
   }
 }
