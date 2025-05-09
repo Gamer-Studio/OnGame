@@ -10,6 +10,7 @@ namespace OnGame.Utils
                 public override void Enter(Player source)
                 {
                     Debug.Log("Changed to idle state");
+                    source.Animator.SetBool(source.IsMove, false);
                 }
         
                 public override void Execute(Player source)
@@ -23,6 +24,7 @@ namespace OnGame.Utils
         
                 public override void Exit(Player source)
                 {
+                    source.Animator.SetBool(source.IsMove, true);
                 }
             }
         
@@ -31,6 +33,7 @@ namespace OnGame.Utils
                 public override void Enter(Player source)
                 {
                     Debug.Log("Changed to move state");
+                    source.Animator.SetBool(source.IsMove, true);
                 }
         
                 public override void Execute(Player source)
@@ -43,7 +46,7 @@ namespace OnGame.Utils
         
                 public override void Exit(Player source)
                 {
-                    
+                    source.Animator.SetBool(source.IsMove, false);
                 }
             }
         

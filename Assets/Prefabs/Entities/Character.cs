@@ -10,7 +10,9 @@ namespace OnGame.Prefabs.Entities
     public class Character : Entity
     {
         // Const Fields
-        private static readonly int Angle = Animator.StringToHash("Angle");
+        private static readonly int Angle = Animator.StringToHash("Direction");
+        private static readonly int IsDamage = Animator.StringToHash("IsDamage");
+        public readonly int IsMove = Animator.StringToHash("IsMove");
         
         // Component Fields
         private Animator animator;
@@ -41,6 +43,7 @@ namespace OnGame.Prefabs.Entities
         public bool IsAttacking { get => isAttacking; set => isAttacking = value; }
         public bool IsInteracting{ get=> isInteracting; set=> isInteracting = value; }
         public bool IsDashing{ get=> isDashing; set=> isDashing = value; }
+        public Animator Animator => animator;
         
         // Action event
         public event Action? OnDeath; 
