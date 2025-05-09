@@ -13,22 +13,14 @@ MonoBehaviour:
   m_Name: Waterfall
   m_EditorClassIdentifier: 
   m_AnimatedSprites:
-  - {fileID: 599347530, guid: 56b771cc48eb2244f9e67f716c682a2b, type: 3}
-  - {fileID: 1561726318, guid: 56b771cc48eb2244f9e67f716c682a2b, type: 3}
-  - {fileID: -1517800260, guid: 56b771cc48eb2244f9e67f716c682a2b, type: 3}
-  - {fileID: 2016026995, guid: 56b771cc48eb2244f9e67f716c682a2b, type: 3}
-  - {fileID: -805625206, guid: 56b771cc48eb2244f9e67f716c682a2b, type: 3}
-  - {fileID: -951360763, guid: 56b771cc48eb2244f9e67f716c682a2b, type: 3}
-  - {fileID: -2058575498, guid: 56b771cc48eb2244f9e67f716c682a2b, type: 3}
-  - {fileID: -999275117, guid: 56b771cc48eb2244f9e67f716c682a2b, type: 3}
-  - {fileID: 931622717, guid: 56b771cc48eb2244f9e67f716c682a2b, type: 3}
-  - {fileID: 1949693688, guid: 56b771cc48eb2244f9e67f716c682a2b, type: 3}
-  - {fileID: -702996851, guid: 56b771cc48eb2244f9e67f716c682a2b, type: 3}
-  - {fileID: -963331353, guid: 56b771cc48eb2244f9e67f716c682a2b, type: 3}
-  - {fileID: 2089589191, guid: 56b771cc48eb2244f9e67f716c682a2b, type: 3}
-  - {fileID: -1110132473, guid: 56b771cc48eb2244f9e67f716c682a2b, type: 3}
-  - {fileID: -1968096347, guid: 56b771cc48eb2244f9e67f716c682a2b, type: 3}
-  - {fileID: -1899075813, guid: 56b771cc48eb2244f9e67f716c682a2b, type: 3}
+  - {fileID: -1980677129, guid: 544d4a1ad18eb0d4582879dc109fef63, type: 3}
+  - {fileID: -1482382875, guid: 544d4a1ad18eb0d4582879dc109fef63, type: 3}
+  - {fileID: 1616558124, guid: 544d4a1ad18eb0d4582879dc109fef63, type: 3}
+  - {fileID: -395294645, guid: 544d4a1ad18eb0d4582879dc109fef63, type: 3}
+  - {fileID: 623318565, guid: 544d4a1ad18eb0d4582879dc109fef63, type: 3}
+  - {fileID: 419248909, guid: 544d4a1ad18eb0d4582879dc109fef63, type: 3}
+  - {fileID: -282515858, guid: 544d4a1ad18eb0d4582879dc109fef63, type: 3}
+  - {fileID: -1410144071, guid: 544d4a1ad18eb0d4582879dc109fef63, type: 3}
   m_MinSpeed: 1
   m_MaxSpeed: 1
   m_AnimationStartTime: 0
