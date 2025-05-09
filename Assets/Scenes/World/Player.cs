@@ -1,78 +1,163 @@
-using System;
 using Cinemachine;
 using OnGame.Prefabs.Entities;
-using OnGame.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using OnGame.Utils.PlayerState;
 
 namespace OnGame.Scenes.World
 {
-  public class Player : Character
-  {
-    // Component Fields
-    [SerializeField] private new CinemachineVirtualCamera camera;
-    
-    public float CameraSpeed = 10;
-    public PlayerStates CurrentState { get; private set; } = PlayerStates.Idle;
-    
-    // State Machine
-    [SerializeField] private State<Player>[] states;
-    public StateMachine<Player> StateMachine { get; private set; }
-
-    protected override void Awake()
+    public class Player : MonoBehaviour
     {
-      base.Awake();
-      
-      // Sets Player States
-      SetUp();
-    }
+        // Character Field
+        [Header("Character Entity")]
+        [SerializeField] private Character character;
 
-    private void OnMove(InputValue value)
-    { 
-      movementDirection = value.Get<Vector2>();
-    }
-    
-    private void OnZoom(InputValue value)
-    {
-      var scroll = value.Get<float>();
+        // Component Fields
+        [Header("Components")] [SerializeField]
+        private CinemachineVirtualCamera cam;
+        [Range(0.1f, 1f)] [SerializeField] private float zoomRate = 1f;
+        [Range(0.1f, 2f)] [SerializeField] private float zoomSpeed = 1f;
+        [Range(1f, 10f)] [SerializeField] private float minZoom = 1f;
+        [Range(1f, 20f)] [SerializeField] private float maxZoom = 5f;
+        
+        // Physics Fields
+        [Header("Physics")] 
+        [SerializeField] protected Vector2 lookAtDirection = Vector2.zero;
+        [SerializeField] protected Vector2 movementDirection = Vector2.zero;
+        
+        // Fields
+        [Header("Common Fields")]
+        [Range(0.1f, 10f)] [SerializeField] private float maxDashDistance = 5f;
+        
+        private Rigidbody2D rigidBody;
+        private float speed;
+        private float drag;
+        private float moveForce;
+        private float currentZoom;
+        private float newZoom;
+        private float scroll;
 
-      if (scroll != 0)
-        camera.m_Lens.OrthographicSize = Mathf.Clamp(
-          camera.m_Lens.OrthographicSize + scroll > 0 ? +CameraSpeed : -CameraSpeed, 
-          10, 100);
-    }
-    
-    #region Basic Action Rules
-    private void SetUp()
-    {
-      states = new State<Player>[Enum.GetValues(typeof(PlayerStates)).Length];
-      for (int i = 0; i < states.Length; i++)
-      {
-        states[i] = GetState((PlayerStates)i);
-      }
-      StateMachine = new StateMachine<Player>();
-      StateMachine.SetUp(this, states[(int)PlayerStates.Idle]);
-    }
+        // Properties
+        public Vector2 MovementDirection => movementDirection;
+        public Vector2 LookAtDirection => lookAtDirection;
 
-    private State<Player> GetState(PlayerStates _state)
-    {
-      return _state switch
-      {
-        PlayerStates.Idle => new IdleState(),
-        PlayerStates.Move => new MoveState(),
-        PlayerStates.Dash => new DashState(),
-        PlayerStates.Guard => new GuardState(),
-        PlayerStates.Dead => new DeadState(),
-        _ => null
-      };
-    }
+        /// <summary>
+        /// Start is called on the frame when a script is enabled just before
+        /// </summary>
+        private void Start()
+        {
+            rigidBody = character.RigidBody;
+            speed = character.Speed;
+            drag = character.Drag;
+            rigidBody.drag = drag;
+            moveForce = character.MoveForce;
+            currentZoom = cam.m_Lens.OrthographicSize;
+            newZoom = currentZoom;
+        }
 
-    public void ChangeState(PlayerStates _newState)
-    {
-      CurrentState = _newState;
-      StateMachine.ChangeState(states[(int)_newState]);
+        /// <summary>
+        /// Update is called every frame if the MonoBehaviour is enabled.
+        /// </summary>
+        private void Update()
+        {
+            Rotate(MovementDirection);
+            CalculateCamZoom();
+        }
+
+        private void FixedUpdate()
+        {
+            Movement(movementDirection);
+        }
+
+        /// <summary>
+        /// Change camera zoom with lerp
+        /// </summary>
+        private void LateUpdate()
+        {
+            currentZoom = Mathf.Lerp(currentZoom, newZoom, Time.deltaTime * zoomSpeed);
+            cam.m_Lens.OrthographicSize = currentZoom;
+        }
+
+        /// <summary>
+        /// Character Movement Action
+        /// </summary>
+        /// <param name="direction"></param>
+        private void Movement(Vector2 direction)
+        {
+            if(character.RigidBody.velocity.magnitude > speed)
+            {
+                rigidBody.velocity *= (speed / rigidBody.velocity.magnitude);    
+            }
+
+            rigidBody.AddForce(direction.normalized * moveForce, ForceMode2D.Force);
+        }
+
+        /// <summary>
+        /// Character Rotation Action
+        /// </summary>
+        /// <param name="direction"></param>
+        private void Rotate(Vector2 direction)
+        {
+            var rotZ = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+
+            var confDirection = rotZ switch
+            {
+                > 45f and < 135f => Direction.North,
+                < -45f and > -135f => Direction.South,
+                >= 135f or <= -135f => Direction.West,
+                _ => Direction.East
+            };
+
+            // Movement Animation
+            character.Animator.SetInteger(character.Angle, (int)confDirection);
+        }
+
+        /// <summary>
+        /// Calculate Camera Zoom Action
+        /// </summary>
+        private void CalculateCamZoom()
+        {
+            var camHeight = cam.m_Lens.OrthographicSize;
+            var camWidth = camHeight * cam.m_Lens.Aspect;
+
+            var maxCamHeight = 100f / 2f;
+            var maxCamWidth = 150f / 2f / cam.m_Lens.Aspect;
+            if (Mathf.Abs(scroll) > 0.01f)
+            {
+                newZoom = currentZoom - Mathf.Clamp(scroll * zoomRate, -1f, 1f);
+                Debug.Log(newZoom);
+                newZoom = Mathf.Clamp(newZoom, minZoom, maxZoom);
+                scroll = 0;
+            }
+        }
+
+        #region Input Actions
+
+        private void OnMove(InputValue value)
+        {
+            movementDirection = value.Get<Vector2>();
+        }
+
+        private void OnZoom(InputValue value)
+        {
+            scroll = value.Get<float>();
+            CalculateCamZoom();
+        }
+
+        private void OnDash(InputValue value)
+        {
+            if (!character.IsDashAvailable) return;
+            
+            var val = value.Get<float>();
+            if (val <= 0f) return;
+            character.OnDash();
+            rigidBody.AddForce(movementDirection * character.Speed * 10f, ForceMode2D.Impulse);
+        }
+
+        private void OnFire(InputValue value)
+        {
+            character.IsAttacking = value.Get<float>() > 0f;
+        }
+
+        #endregion
     }
-    #endregion
-  }
 }
