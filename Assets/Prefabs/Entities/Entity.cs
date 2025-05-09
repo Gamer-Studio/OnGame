@@ -13,15 +13,9 @@ namespace OnGame.Prefabs.Entities
         
         protected Vector2 movementDirection = Vector2.zero;
         protected Vector2 lookAtDirection = Vector2.zero;
-        protected bool isAttacking;
-        protected bool isInteracting;
-        
-        private float timeSinceLastAttack = float.MaxValue;
         
         public Vector2 MovementDirection => movementDirection;
         public Vector2 LookAtDirection => lookAtDirection;
-        public bool IsAttacking => isAttacking;
-        public bool IsInteracting{ get=> isInteracting; set=> isInteracting = value; }
 
         protected virtual void Awake()
         {
@@ -40,10 +34,7 @@ namespace OnGame.Prefabs.Entities
           Movement(movementDirection);
         }
 
-        protected virtual void HandleAction()
-        {
-          
-        }
+        protected virtual void HandleAction() { }
 
         protected virtual void Movement(Vector2 direction)
         {
@@ -51,16 +42,6 @@ namespace OnGame.Prefabs.Entities
           rigidBody.velocity = direction;
         }
         
-        protected virtual void Rotate(Vector2 direction)
-        {
-            
-        }
-        
-        protected virtual void Attack() { }
-
-        public virtual void Die()
-        {
-          rigidBody.velocity = Vector2.zero;
-        }
+        protected virtual void Rotate(Vector2 direction) { }
     }
 }
