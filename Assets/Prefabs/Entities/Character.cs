@@ -27,7 +27,7 @@ namespace OnGame.Prefabs.Entities
         [Header("States")] 
         [SerializeField] [GetSet("IsInvincible")] private bool isInvincible;
         [SerializeField] [GetSet("IsAlive")] private bool isAlive = true;
-        [SerializeField] [GetSet("IsAttacking")] private bool isAttacking;
+        [SerializeField] [GetSet("IsAttacking")] private bool isAttacking = false;
         [SerializeField] [GetSet("IsInteracting")] private bool isInteracting;
         [SerializeField] [GetSet("IsDashing")] private bool isDashing;
         
@@ -81,8 +81,13 @@ namespace OnGame.Prefabs.Entities
 
         private void HandleAttackDelay()
         {
-            if (timeSinceLastAttack <= attackDelay) timeSinceLastAttack += Time.deltaTime;
-            if (isAttacking && timeSinceLastAttack > attackDelay)
+            if (!isAttacking) return;
+
+            if (timeSinceLastAttack <= attackDelay)
+            {
+                timeSinceLastAttack += Time.deltaTime;
+            }
+            else
             {
                 timeSinceLastAttack = 0;
                 OnAttack();

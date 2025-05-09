@@ -54,11 +54,11 @@ namespace OnGame.Prefabs.Entities
                 return originalValue;
             });
 
-            health = new RangedStat(100);
-            mana = new RangedStat(50);
+            health = new RangedStat(100, 100);
+            mana = new RangedStat(50, 50);
+            experience = new RangedStat(100, 0);
             CriticalMultiplier = new Stat<float>(1.5f, null);
             CriticalPossibility = new Stat<float>(0.1f, null);
-            experience = new RangedStat(100, 0);
         }
 
         protected virtual void HandleAction()

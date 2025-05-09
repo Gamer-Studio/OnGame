@@ -152,12 +152,16 @@ namespace OnGame.Scenes.World
             var val = value.Get<float>();
             if (val <= 0f) return;
             character.OnDash();
-            rigidBody.AddForce(movementDirection * character.Speed * 10f, ForceMode2D.Impulse);
+            if(movementDirection == Vector2.zero) 
+                rigidBody.AddForce(lookAtDirection * character.Speed * 10f, ForceMode2D.Impulse);
+            else rigidBody.AddForce(movementDirection * character.Speed * 10f, ForceMode2D.Impulse);
         }
 
         private void OnFire(InputValue value)
         {
-            character.IsAttacking = value.Get<float>() > 0f;
+            var val = value.Get<float>();
+            Debug.Log(val);
+            character.IsAttacking = value.Get<float>() > 0;
         }
 
         #endregion
