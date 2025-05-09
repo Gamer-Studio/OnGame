@@ -1,4 +1,5 @@
 ﻿using OnGame.Scenes.World;
+using UnityEngine;
 
 namespace OnGame.Utils
 {
@@ -8,17 +9,20 @@ namespace OnGame.Utils
             {
                 public override void Enter(Player source)
                 {
-                    throw new System.NotImplementedException();
+                    Debug.Log("Changed to idle state");
                 }
         
                 public override void Execute(Player source)
                 {
-                    throw new System.NotImplementedException();
+                    
+                    if (source.RigidBody.velocity.magnitude <= 0.5f)
+                    {
+                        source.ChangeState(PlayerStates.Move);
+                    }
                 }
         
                 public override void Exit(Player source)
                 {
-                    throw new System.NotImplementedException();
                 }
             }
         
@@ -26,17 +30,20 @@ namespace OnGame.Utils
             {
                 public override void Enter(Player source)
                 {
-                    throw new System.NotImplementedException();
+                    Debug.Log("Changed to move state");
                 }
         
                 public override void Execute(Player source)
                 {
-                    throw new System.NotImplementedException();
+                    if (source.RigidBody.velocity.magnitude > 0.5f)
+                    {
+                        source.ChangeState(PlayerStates.Idle);
+                    }
                 }
         
                 public override void Exit(Player source)
                 {
-                    throw new System.NotImplementedException();
+                    
                 }
             }
         
@@ -44,35 +51,44 @@ namespace OnGame.Utils
             {
                 public override void Enter(Player source)
                 {
-                    throw new System.NotImplementedException();
+                    Debug.Log("Changed to dash state");
                 }
         
                 public override void Execute(Player source)
                 {
-                    throw new System.NotImplementedException();
+                    
                 }
         
                 public override void Exit(Player source)
                 {
-                    throw new System.NotImplementedException();
+                    
                 }
             }
         
             public class GuardState : State<Player>
             {
+                private float originalSpeed;
+                private StatOperator<float> guardOperator;
+                
                 public override void Enter(Player source)
                 {
-                    throw new System.NotImplementedException();
+                    Debug.Log("Changed to guard state");
+                    originalSpeed = source.Speed;
+                    source.Speed /= 2;
+                    guardOperator = (x) => x * 5f;
+                    source.IsDashing = true;
+                    source.DefenseOpers.Add(guardOperator);
                 }
         
                 public override void Execute(Player source)
                 {
-                    throw new System.NotImplementedException();
+                    
                 }
         
                 public override void Exit(Player source)
                 {
-                    throw new System.NotImplementedException();
+                    source.Speed = originalSpeed;
+                    source.DefenseOpers.Remove(guardOperator);
                 }
             }
         
@@ -80,17 +96,17 @@ namespace OnGame.Utils
             {
                 public override void Enter(Player source)
                 {
-                    throw new System.NotImplementedException();
+                    
                 }
         
                 public override void Execute(Player source)
                 {
-                    throw new System.NotImplementedException();
+                    
                 }
         
                 public override void Exit(Player source)
                 {
-                    throw new System.NotImplementedException();
+                    
                 }
             }
     }

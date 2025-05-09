@@ -14,23 +14,14 @@ namespace OnGame.Prefabs.Entities
         
         // Component Fields
         private Animator animator;
-        private SpriteRenderer characterRenderer;
-        
-        // Stat. Fields
-        protected Stat<float> AttackStat;
-        protected Stat<float> DefenseStat;
-        protected RangedStat Health;
-        protected RangedStat Mana;
-        public Stat<float> CriticalMultiplier;
-        public Stat<float> CriticalPossibility;
-        protected Stat<int> Experience;
         
         // State Fields
-        private bool isInvincible;
-        private bool isAlive = true;
-        private bool isDashing;
-        private bool isAttacking;
-        private bool isInteracting;
+        [Header("State")]
+        [SerializeField][GetSet("IsInvincible")] private bool isInvincible;
+        [SerializeField][GetSet("IsAlive")] private bool isAlive = true;
+        [SerializeField][GetSet("IsAttacking")] private bool isDashing;
+        [SerializeField][GetSet("IsInteracting")] private bool isAttacking;
+        [SerializeField][GetSet("IsDashing")] private bool isInteracting;
         
         // Cooldown Fields
         protected float TimeSinceLastAttack = float.MaxValue; 
@@ -41,9 +32,12 @@ namespace OnGame.Prefabs.Entities
         protected float InvincibleTimeDelay = 0.5f;
         private bool isDashAvailable = true;
         
+        // Stats Fields
+        private float originalSpeed;
+        
         // Properties
-        public bool IsInvincible => isInvincible;
-        public bool IsAlive => isAlive;
+        public bool IsInvincible { get => isInvincible; set => isInvincible = value; }
+        public bool IsAlive { get => isAlive; set => isAlive = value; }
         public bool IsAttacking { get => isAttacking; set => isAttacking = value; }
         public bool IsInteracting{ get=> isInteracting; set=> isInteracting = value; }
         public bool IsDashing{ get=> isDashing; set=> isDashing = value; }
@@ -57,8 +51,12 @@ namespace OnGame.Prefabs.Entities
             animator = Helper.GetComponentInChildren_Helper<Animator>(gameObject, true);
         }
 
-        protected virtual void Init() { }
-
+        protected override void FixedUpdate()
+        {
+            if(!isAlive || isDashing) return;    
+            base.FixedUpdate();
+        }
+        
         protected override void Update()
         {
             base.Update();
@@ -113,11 +111,8 @@ namespace OnGame.Prefabs.Entities
         protected virtual void OnEarnExp(int exp) { }
         
         protected virtual void OnLevelUp() { }
-    
-        protected virtual void OnAttack() 
-        {
-            
-        }
+
+        protected virtual void OnAttack() { }
 
         protected virtual void OnDash()
         {
@@ -132,16 +127,14 @@ namespace OnGame.Prefabs.Entities
         protected virtual void OnGuard()
         {
             if (!isAlive) return;
-            
-            
         }
         
         protected virtual void OnDamage(float damage)
         {
             if (!isAlive || isInvincible) return;
             
-            var calculatedDamage = damage * (1f - DefenseStat.Value / 100f);
-            Health.Value -= Mathf.CeilToInt(calculatedDamage);
+            var calculatedDamage = damage * (1f - defenseStat.Value / 100f);
+            health.Value -= Mathf.CeilToInt(calculatedDamage);
 
             isInvincible = true;
             TimeSinceLastInvincible = 0f;
@@ -151,19 +144,19 @@ namespace OnGame.Prefabs.Entities
         protected virtual void OnHealthRecover(int coef)
         {
             if (!isAlive) return;
-            Health.Value += coef;
+            health.Value += coef;
         }
 
         protected virtual void OnManaConsume(int coef)
         {
             if (!isAlive) return;
-            Mana.Value -= coef;
+            mana.Value -= coef;
         }
 
         protected virtual void OnManaRecover(int coef)
         {
             if (!isAlive) return;
-            Mana.Value += coef;
+            mana.Value += coef;
         }
 
         public virtual void Die()

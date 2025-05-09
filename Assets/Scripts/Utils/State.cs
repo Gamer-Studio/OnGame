@@ -1,5 +1,6 @@
 namespace OnGame.Utils
 {
+    public enum PlayerStates{Idle, Move, Dash, Guard, Dead}
     public enum EnemyStates{Patrol, Chase, Attack, Dead}
     
     public abstract class State<T> where T : class
