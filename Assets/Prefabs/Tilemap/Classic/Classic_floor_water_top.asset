@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9d1514134bc4fbd41bb739b1b9a49231, type: 3}
-  m_Name: Classic_floor_puddle_reflection_middle
+  m_Name: Classic_floor_water_top
   m_EditorClassIdentifier: 
   m_DefaultSprite: {fileID: 992020747, guid: f2cd915b282f6dd4db94ce2d726b98b0, type: 3}
   m_DefaultGameObject: {fileID: 0}
@@ -18,7 +18,7 @@ MonoBehaviour:
   m_TilingRules:
   - m_Id: 5
     m_Sprites:
-    - {fileID: 1607398795, guid: f2cd915b282f6dd4db94ce2d726b98b0, type: 3}
+    - {fileID: 179688394, guid: f2cd915b282f6dd4db94ce2d726b98b0, type: 3}
     - {fileID: 95599024, guid: 5b4aa4cc2603f2b478dec1f16a2c2f44, type: 3}
     - {fileID: 95599024, guid: 5b4aa4cc2603f2b478dec1f16a2c2f44, type: 3}
     - {fileID: 95599024, guid: 5b4aa4cc2603f2b478dec1f16a2c2f44, type: 3}
@@ -44,7 +44,7 @@ MonoBehaviour:
     m_RuleTransform: 2
   - m_Id: 11
     m_Sprites:
-    - {fileID: -2129826048, guid: f2cd915b282f6dd4db94ce2d726b98b0, type: 3}
+    - {fileID: -227269700, guid: f2cd915b282f6dd4db94ce2d726b98b0, type: 3}
     m_GameObject: {fileID: 0}
     m_MinAnimationSpeed: 1
     m_MaxAnimationSpeed: 1
@@ -57,9 +57,9 @@ MonoBehaviour:
     - {x: -1, y: 0, z: 0}
     - {x: 1, y: 0, z: 0}
     m_RuleTransform: 2
-  - m_Id: 0
+  - m_Id: 3
     m_Sprites:
-    - {fileID: -986571700, guid: f2cd915b282f6dd4db94ce2d726b98b0, type: 3}
+    - {fileID: -1383373278, guid: f2cd915b282f6dd4db94ce2d726b98b0, type: 3}
     m_GameObject: {fileID: 0}
     m_MinAnimationSpeed: 1
     m_MaxAnimationSpeed: 1
