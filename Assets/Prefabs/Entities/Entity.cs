@@ -21,9 +21,11 @@ namespace OnGame.Prefabs.Entities
         [SerializeField] protected RangedStat experience;
         public Stat<float> CriticalMultiplier;
         public Stat<float> CriticalPossibility;
+        public List<StatOperator<float>> AttackOpers = new();
         public List<StatOperator<float>> DefenseOpers = new();
         
         // Component Fields
+        [Header("RigidBody Components")]
         [SerializeField] protected Rigidbody2D rigidBody;
 
         // Properties
@@ -31,16 +33,20 @@ namespace OnGame.Prefabs.Entities
         public float Speed { get => speed; set => speed = value; }
         public float Drag => drag;
         public float MoveForce => moveForce;
-        public Stat<float> DefendStatProp => defenseStat;
 
         protected virtual void Update()
         {
             HandleAction();
         }
 
-        protected virtual void Init()
+        public virtual void Init()
         {
-            attackStat = new Stat<float>(10f, null);
+            attackStat = new Stat<float>(10f, x =>
+            {
+                var originalValue = x;
+                foreach(var oper in AttackOpers) originalValue = oper(originalValue);
+                return originalValue;
+            });
             defenseStat = new Stat<float>(5f, x =>
             {
                 var originalValue = x;
@@ -56,10 +62,6 @@ namespace OnGame.Prefabs.Entities
         }
 
         protected virtual void HandleAction()
-        {
-        }
-
-        protected virtual void Rotate(Vector2 direction)
         {
         }
     }

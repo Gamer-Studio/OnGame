@@ -52,6 +52,8 @@ namespace OnGame.Scenes.World
             moveForce = character.MoveForce;
             currentZoom = cam.m_Lens.OrthographicSize;
             newZoom = currentZoom;
+            
+            character.Init();
         }
 
         /// <summary>

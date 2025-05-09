@@ -67,7 +67,7 @@ namespace OnGame.Utils.States.PlayerState
             Debug.Log("Changed to guard state");
             originalSpeed = source.Speed;
             source.Speed /= 2;
-            guardOperator = x => x * 5f;
+            guardOperator = x => x + x * 0.8f;
             source.DefenseOpers.Add(guardOperator);
         }
 

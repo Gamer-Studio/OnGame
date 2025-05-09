@@ -32,6 +32,7 @@ namespace OnGame.Prefabs.Entities
         [SerializeField] [GetSet("IsDashing")] private bool isDashing;
         
         // Stats Fields
+        private int availablePoint = 0;
         private float originalSpeed;
         
         // Cooldown Fields
