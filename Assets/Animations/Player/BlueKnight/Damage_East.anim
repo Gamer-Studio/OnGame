@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Damage_left
+  m_Name: Damage_East
   serializedVersion: 7
   m_Legacy: 0
   m_Compressed: 0
@@ -141,7 +141,7 @@ AnimationClip:
   - serializedVersion: 2
     curve:
     - time: 0
-      value: {fileID: -83374059, guid: 516a06a92222cd646bb9f9dfbe3cb2b7, type: 3}
+      value: {fileID: -992889374, guid: 516a06a92222cd646bb9f9dfbe3cb2b7, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -200,7 +200,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     pptrCurveMapping:
-    - {fileID: -83374059, guid: 516a06a92222cd646bb9f9dfbe3cb2b7, type: 3}
+    - {fileID: -992889374, guid: 516a06a92222cd646bb9f9dfbe3cb2b7, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
