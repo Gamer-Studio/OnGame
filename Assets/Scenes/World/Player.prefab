@@ -44,8 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4735167e0f58eea46a09df90b30e2089, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
-  drag: 0
+  speed: 15
+  drag: 10
+  moveForce: 30
   attackStat:
     baseValue: 0
   defenseStat:
@@ -78,11 +79,19 @@ MonoBehaviour:
     baseValue: 0
   CriticalPossibility:
     baseValue: 0
+  rigidBody: {fileID: 7536149012215300990}
+  animator: {fileID: 5731273630303561094}
   isInvincible: 0
   isAlive: 1
-  isDashing: 0
   isAttacking: 0
   isInteracting: 0
+  isDashing: 0
+  timeSinceLastAttack: 3.4028235e+38
+  timeSinceLastDashed: 3.4028235e+38
+  timeSinceLastInvincible: 3.4028235e+38
+  attackDelay: 0.5
+  dashCoolTime: 5
+  invincibleTimeDelay: 0.5
 --- !u!1 &6119227385711252306
 GameObject:
   m_ObjectHideFlags: 0
@@ -168,9 +177,9 @@ MonoBehaviour:
   zoomSpeed: 1
   minZoom: 3
   maxZoom: 10
-  maxDashDistance: 5
   lookAtDirection: {x: 0, y: 0}
   movementDirection: {x: 0, y: 0}
+  maxDashDistance: 5
 --- !u!50 &7536149012215300990
 Rigidbody2D:
   serializedVersion: 4
@@ -186,7 +195,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 10
   m_AngularDrag: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
