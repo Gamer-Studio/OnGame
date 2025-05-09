@@ -7,7 +7,7 @@ namespace OnGame.Utils
   [Serializable]
   public class RangedStat
   {
-    public UnityEvent<int, int> onChanged;
+    public UnityEvent<int> onChanged;
 
     [SerializeField] [GetSet("Value")] private int value;
     [SerializeField] private Stat<int> max;
@@ -32,21 +32,30 @@ namespace OnGame.Utils
       get => value;
       set
       {
+        var prevValue = this.value;
         this.value = Math.Max(0, Math.Min(value, max));
-        onChanged?.Invoke(this.value, max);
+        onChanged?.Invoke(prevValue);
       }
     }
 
     public int Max
     {
       get => max;
-      set => max.baseValue = value;
+      set
+      {
+        max.baseValue = value;
+        Value = this.value;
+      }
     }
 
     public StatOperator<int> MaxOper
     {
       get => max.oper;
-      set => max.oper = value;
+      set
+      {
+        max.oper = value;
+        Value = this.value;
+      }
     }
   }
 }
