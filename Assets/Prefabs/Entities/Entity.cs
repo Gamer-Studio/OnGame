@@ -8,8 +8,9 @@ namespace OnGame.Prefabs.Entities
     {
         // Config Fields
         [Header("Configs")] 
-        [Range(1f, 100f)] [SerializeField] protected float speed = 5f;
-        [Range(0f, 10f)] [SerializeField] protected float drag;
+        [Range(1f, 100f)] [SerializeField] protected float speed = 20f;
+        [Range(0f, 20f)] [SerializeField] protected float drag = 10f;
+        [Range(1f, 100f)] [SerializeField] protected float moveForce = 30f;
 
         // Stat. Fields
         [Header("Stats")] 
@@ -27,13 +28,9 @@ namespace OnGame.Prefabs.Entities
 
         // Properties
         public Rigidbody2D RigidBody => rigidBody;
-
-        public float Speed
-        {
-            get => speed;
-            set => speed = value;
-        }
-
+        public float Speed { get => speed; set => speed = value; }
+        public float Drag => drag;
+        public float MoveForce => moveForce;
         public Stat<float> DefendStatProp => defenseStat;
 
         protected virtual void Update()

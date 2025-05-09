@@ -24,24 +24,25 @@ namespace OnGame.Prefabs.Entities
         [SerializeField] protected Animator animator;
         
         // State Fields
-        [Header("State")] 
+        [Header("States")] 
         [SerializeField] [GetSet("IsInvincible")] private bool isInvincible;
         [SerializeField] [GetSet("IsAlive")] private bool isAlive = true;
-        [SerializeField] [GetSet("IsAttacking")] private bool isDashing;
-        [SerializeField] [GetSet("IsInteracting")] private bool isAttacking;
-        [SerializeField] [GetSet("IsDashing")] private bool isInteracting;
+        [SerializeField] [GetSet("IsAttacking")] private bool isAttacking;
+        [SerializeField] [GetSet("IsInteracting")] private bool isInteracting;
+        [SerializeField] [GetSet("IsDashing")] private bool isDashing;
         
         // Stats Fields
         private float originalSpeed;
         
         // Cooldown Fields
-        protected float TimeSinceLastAttack = float.MaxValue;
-        protected float TimeSinceLastDashed = float.MaxValue;
-        protected float TimeSinceLastInvincible = float.MaxValue;
-        protected float AttackDelay = 0.5f; 
-        protected float DashCoolTime = 20f;
-        protected float InvincibleTimeDelay = 0.5f; 
-        private bool isDashAvailable = true;
+        [Header("Cooldowns")]
+        [SerializeField] private float timeSinceLastAttack = float.MaxValue;
+        [SerializeField] private float timeSinceLastDashed = float.MaxValue;
+        [SerializeField] private float timeSinceLastInvincible = float.MaxValue;
+        [SerializeField] private float attackDelay = 0.5f; 
+        [SerializeField] private float dashCoolTime = 5f;
+        [SerializeField] private float invincibleTimeDelay = 0.5f; 
+        
 
         // Properties
         public bool IsInvincible { get => isInvincible; set => isInvincible = value; }
@@ -49,6 +50,7 @@ namespace OnGame.Prefabs.Entities
         public bool IsAttacking { get => isAttacking; set => isAttacking = value; }
         public bool IsInteracting { get => isInteracting; set => isInteracting = value; }
         public bool IsDashing { get => isDashing; set => isDashing = value; }
+        public bool IsDashAvailable { get; private set; } = true;
         public Animator Animator => animator;
         
         // State Machine
@@ -78,10 +80,10 @@ namespace OnGame.Prefabs.Entities
 
         private void HandleAttackDelay()
         {
-            if (TimeSinceLastAttack <= AttackDelay) TimeSinceLastAttack += Time.deltaTime;
-            if (isAttacking && TimeSinceLastAttack > AttackDelay)
+            if (timeSinceLastAttack <= attackDelay) timeSinceLastAttack += Time.deltaTime;
+            if (isAttacking && timeSinceLastAttack > attackDelay)
             {
-                TimeSinceLastAttack = 0;
+                timeSinceLastAttack = 0;
                 OnAttack();
             }
         }
@@ -90,29 +92,29 @@ namespace OnGame.Prefabs.Entities
         {
             if (!isInvincible) return;
 
-            if (TimeSinceLastInvincible <= InvincibleTimeDelay)
+            if (timeSinceLastInvincible <= invincibleTimeDelay)
             {
-                TimeSinceLastInvincible += Time.deltaTime;
+                timeSinceLastInvincible += Time.deltaTime;
             }
             else
             {
                 isInvincible = false;
-                TimeSinceLastInvincible = 0;
+                timeSinceLastInvincible = 0;
             }
         }
 
         private void HandleDashCoolTime()
         {
-            if (isDashAvailable) return;
+            if (IsDashAvailable) return;
 
-            if (TimeSinceLastDashed <= DashCoolTime)
+            if (timeSinceLastDashed <= dashCoolTime)
             {
-                TimeSinceLastDashed += Time.deltaTime;
+                timeSinceLastDashed += Time.deltaTime;
             }
             else
             {
-                isDashAvailable = true;
-                TimeSinceLastDashed = 0;
+                IsDashAvailable = true;
+                timeSinceLastDashed = 0;
             }
         }
 
@@ -128,14 +130,16 @@ namespace OnGame.Prefabs.Entities
         {
         }
 
-        private void OnDash()
+        public void OnDash()
         {
-            if (!isAlive || !isDashAvailable) return;
+            if (!isAlive || !IsDashAvailable) return;
 
-            isDashAvailable = false;
+            IsDashAvailable = false;
             isInvincible = true;
-            TimeSinceLastInvincible = 0;
-            TimeSinceLastDashed = 0;
+            timeSinceLastInvincible = 0;
+            timeSinceLastDashed = 0;
+            
+            // TODO: ChangeState를 넣어 DashState 변경 후 Animation 추가
         }
 
         private void OnGuard()
@@ -151,7 +155,7 @@ namespace OnGame.Prefabs.Entities
             health.Value -= Mathf.CeilToInt(calculatedDamage);
 
             isInvincible = true;
-            TimeSinceLastInvincible = 0f;
+            timeSinceLastInvincible = 0f;
         }
 
 
@@ -183,6 +187,9 @@ namespace OnGame.Prefabs.Entities
 
         #region Basic Action Rules
 
+        /// <summary>
+        /// State Machine Setup
+        /// </summary>
         private void SetUp()
         {
             states = new State<Character>[Enum.GetValues(typeof(PlayerStates)).Length];
@@ -191,6 +198,11 @@ namespace OnGame.Prefabs.Entities
             StateMachine.SetUp(this, states[(int)PlayerStates.Idle]);
         }
 
+        /// <summary>
+        /// PlayerState 기준에 따라 어떤 작업을 수행할 것인지 정해주는 작업
+        /// </summary>
+        /// <param name="state"></param>
+        /// <returns></returns>
         private State<Character> GetState(PlayerStates state)
         {
             return state switch
@@ -204,6 +216,10 @@ namespace OnGame.Prefabs.Entities
             };
         }
 
+        /// <summary>
+        /// State Change가 필요할 때 호출하는 함수
+        /// </summary>
+        /// <param name="newState"></param>
         public void ChangeState(PlayerStates newState)
         {
             CurrentState = newState;

@@ -18,15 +18,20 @@ namespace OnGame.Scenes.World
         [Range(0.1f, 2f)] [SerializeField] private float zoomSpeed = 1f;
         [Range(1f, 10f)] [SerializeField] private float minZoom = 1f;
         [Range(1f, 20f)] [SerializeField] private float maxZoom = 5f;
-
-        // Player Only Fields
-        [Header("Player Only Fields")] [Range(0.1f, 10f)] [SerializeField]
-        private float maxDashDistance = 5f;
-
+        
         // Physics Fields
-        [Header("Physics")] [SerializeField] protected Vector2 lookAtDirection = Vector2.zero;
-
+        [Header("Physics")] 
+        [SerializeField] protected Vector2 lookAtDirection = Vector2.zero;
         [SerializeField] protected Vector2 movementDirection = Vector2.zero;
+        
+        // Fields
+        [Header("Common Fields")]
+        [Range(0.1f, 10f)] [SerializeField] private float maxDashDistance = 5f;
+        
+        private Rigidbody2D rigidBody;
+        private float speed;
+        private float drag;
+        private float moveForce;
         private float currentZoom;
         private float newZoom;
         private float scroll;
@@ -40,6 +45,11 @@ namespace OnGame.Scenes.World
         /// </summary>
         private void Start()
         {
+            rigidBody = character.RigidBody;
+            speed = character.Speed;
+            drag = character.Drag;
+            rigidBody.drag = drag;
+            moveForce = character.MoveForce;
             currentZoom = cam.m_Lens.OrthographicSize;
             newZoom = currentZoom;
         }
@@ -53,7 +63,7 @@ namespace OnGame.Scenes.World
             CalculateCamZoom();
         }
 
-        protected virtual void FixedUpdate()
+        private void FixedUpdate()
         {
             Movement(movementDirection);
         }
@@ -67,12 +77,24 @@ namespace OnGame.Scenes.World
             cam.m_Lens.OrthographicSize = currentZoom;
         }
 
+        /// <summary>
+        /// Character Movement Action
+        /// </summary>
+        /// <param name="direction"></param>
         private void Movement(Vector2 direction)
         {
-            direction *= character.Speed;
-            character.RigidBody.velocity = direction;
+            if(character.RigidBody.velocity.magnitude > speed)
+            {
+                rigidBody.velocity *= (speed / rigidBody.velocity.magnitude);    
+            }
+
+            rigidBody.AddForce(direction.normalized * moveForce, ForceMode2D.Force);
         }
 
+        /// <summary>
+        /// Character Rotation Action
+        /// </summary>
+        /// <param name="direction"></param>
         private void Rotate(Vector2 direction)
         {
             var rotZ = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
@@ -119,6 +141,21 @@ namespace OnGame.Scenes.World
         {
             scroll = value.Get<float>();
             CalculateCamZoom();
+        }
+
+        private void OnDash(InputValue value)
+        {
+            if (!character.IsDashAvailable) return;
+            
+            var val = value.Get<float>();
+            if (val <= 0f) return;
+            character.OnDash();
+            rigidBody.AddForce(movementDirection * character.Speed * 10f, ForceMode2D.Impulse);
+        }
+
+        private void OnFire(InputValue value)
+        {
+            character.IsAttacking = value.Get<float>() > 0f;
         }
 
         #endregion
