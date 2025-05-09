@@ -1,99 +1,98 @@
-﻿using OnGame.Scenes.World;
+﻿using OnGame.Prefabs.Entities;
 using UnityEngine;
 
 namespace OnGame.Utils.States.PlayerState
 {
-    public class IdleState : State<Player>
+    public class IdleState : State<Character>
     {
-        public override void Enter(Player source)
+        public override void Enter(Character source)
         {
             Debug.Log("Changed to idle state");
             source.Animator.SetBool(source.IsMove, false);
         }
 
-        public override void Execute(Player source)
+        public override void Execute(Character source)
         {
-            if (source.RigidBody.velocity.magnitude <= 0.5f) source.ChangeState(PlayerStates.Move);
+            if (source.RigidBody.velocity.magnitude >= 0.5f) source.ChangeState(PlayerStates.Move);
         }
 
-        public override void Exit(Player source)
+        public override void Exit(Character source)
         {
             source.Animator.SetBool(source.IsMove, true);
         }
     }
 
-    public class MoveState : State<Player>
+    public class MoveState : State<Character>
     {
-        public override void Enter(Player source)
+        public override void Enter(Character source)
         {
             Debug.Log("Changed to move state");
             source.Animator.SetBool(source.IsMove, true);
         }
 
-        public override void Execute(Player source)
+        public override void Execute(Character source)
         {
-            if (source.RigidBody.velocity.magnitude > 0.5f) source.ChangeState(PlayerStates.Idle);
+            if (source.RigidBody.velocity.magnitude < 0.5f) source.ChangeState(PlayerStates.Idle);
         }
 
-        public override void Exit(Player source)
+        public override void Exit(Character source)
         {
             source.Animator.SetBool(source.IsMove, false);
         }
     }
 
-    public class DashState : State<Player>
+    public class DashState : State<Character>
     {
-        public override void Enter(Player source)
+        public override void Enter(Character source)
         {
             Debug.Log("Changed to dash state");
         }
 
-        public override void Execute(Player source)
+        public override void Execute(Character source)
         {
         }
 
-        public override void Exit(Player source)
+        public override void Exit(Character source)
         {
         }
     }
 
-    public class GuardState : State<Player>
+    public class GuardState : State<Character>
     {
         private StatOperator<float> guardOperator;
         private float originalSpeed;
 
-        public override void Enter(Player source)
+        public override void Enter(Character source)
         {
             Debug.Log("Changed to guard state");
             originalSpeed = source.Speed;
             source.Speed /= 2;
             guardOperator = x => x * 5f;
-            source.IsDashing = true;
             source.DefenseOpers.Add(guardOperator);
         }
 
-        public override void Execute(Player source)
+        public override void Execute(Character source)
         {
         }
 
-        public override void Exit(Player source)
+        public override void Exit(Character source)
         {
             source.Speed = originalSpeed;
             source.DefenseOpers.Remove(guardOperator);
         }
     }
 
-    public class DeadState : State<Player>
+    public class DeadState : State<Character>
     {
-        public override void Enter(Player source)
+        public override void Enter(Character source)
         {
         }
 
-        public override void Execute(Player source)
+        public override void Execute(Character source)
         {
         }
 
-        public override void Exit(Player source)
+        public override void Exit(Character source)
         {
         }
     }

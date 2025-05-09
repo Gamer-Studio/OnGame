@@ -1,93 +1,84 @@
 #nullable enable
 using System;
 using OnGame.Utils;
+using OnGame.Utils.States.PlayerState;
 using UnityEngine;
 
 namespace OnGame.Prefabs.Entities
 {
-    public enum Direction{South, East, North, West}
-    
-    public class Character : Entity
+    public enum Direction
     {
-        // Const Fields
-        private static readonly int Angle = Animator.StringToHash("Direction");
-        private static readonly int IsDamage = Animator.StringToHash("IsDamage");
+        South,
+        East,
+        North,
+        West
+    }
+
+    public class Character : Entity
+    {   // Const Fields
+        public readonly int Angle = Animator.StringToHash("Direction");
+        public readonly int IsDamage = Animator.StringToHash("IsDamage");
         public readonly int IsMove = Animator.StringToHash("IsMove");
-        
         // Component Fields
-        private Animator animator;
+        [Header("Components")]
+        [SerializeField] protected Animator animator;
         
         // State Fields
-        [Header("State")]
-        [SerializeField][GetSet("IsInvincible")] private bool isInvincible;
-        [SerializeField][GetSet("IsAlive")] private bool isAlive = true;
-        [SerializeField][GetSet("IsAttacking")] private bool isDashing;
-        [SerializeField][GetSet("IsInteracting")] private bool isAttacking;
-        [SerializeField][GetSet("IsDashing")] private bool isInteracting;
-        
-        // Cooldown Fields
-        protected float TimeSinceLastAttack = float.MaxValue; 
-        protected float TimeSinceLastInvincible = float.MaxValue;
-        protected float TimeSinceLastDashed = float.MaxValue;
-        protected float AttackDelay = 0.5f;
-        protected float DashCoolTime = 20f;
-        protected float InvincibleTimeDelay = 0.5f;
-        private bool isDashAvailable = true;
+        [Header("State")] 
+        [SerializeField] [GetSet("IsInvincible")] private bool isInvincible;
+        [SerializeField] [GetSet("IsAlive")] private bool isAlive = true;
+        [SerializeField] [GetSet("IsAttacking")] private bool isDashing;
+        [SerializeField] [GetSet("IsInteracting")] private bool isAttacking;
+        [SerializeField] [GetSet("IsDashing")] private bool isInteracting;
         
         // Stats Fields
         private float originalSpeed;
         
+        // Cooldown Fields
+        protected float TimeSinceLastAttack = float.MaxValue;
+        protected float TimeSinceLastDashed = float.MaxValue;
+        protected float TimeSinceLastInvincible = float.MaxValue;
+        protected float AttackDelay = 0.5f; 
+        protected float DashCoolTime = 20f;
+        protected float InvincibleTimeDelay = 0.5f; 
+        private bool isDashAvailable = true;
+
         // Properties
         public bool IsInvincible { get => isInvincible; set => isInvincible = value; }
         public bool IsAlive { get => isAlive; set => isAlive = value; }
         public bool IsAttacking { get => isAttacking; set => isAttacking = value; }
-        public bool IsInteracting{ get=> isInteracting; set=> isInteracting = value; }
-        public bool IsDashing{ get=> isDashing; set=> isDashing = value; }
+        public bool IsInteracting { get => isInteracting; set => isInteracting = value; }
+        public bool IsDashing { get => isDashing; set => isDashing = value; }
         public Animator Animator => animator;
         
-        // Action event
-        public event Action? OnDeath; 
-        
-        protected override void Awake()
+        // State Machine
+        private State<Character>[] states;
+        public PlayerStates CurrentState { get; private set; } = PlayerStates.Idle;
+        public StateMachine<Character> StateMachine { get; private set; }
+
+        private void Awake()
         {
-            base.Awake();
-            animator = Helper.GetComponentInChildren_Helper<Animator>(gameObject, true);
+            // Sets Player States
+            SetUp();
         }
 
-        protected override void FixedUpdate()
-        {
-            if(!isAlive || isDashing) return;    
-            base.FixedUpdate();
-        }
-        
         protected override void Update()
         {
             base.Update();
-            Rotate(MovementDirection);
             HandleAttackDelay();
             HandleDashCoolTime();
             HandleInvincibleTimeDelay();
+
+            // State Machine
+            StateMachine.Execute();
         }
 
-        protected override void Rotate(Vector2 direction)
+        // Action event
+        public event Action? OnDeath;
+
+        private void HandleAttackDelay()
         {
-            var rotZ = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-
-            var confDirection = rotZ switch
-            {
-                > 45f and < 135f => Direction.North,
-                < -45f and > -135f => Direction.South,
-                >= 135f or <= -135f => Direction.West,
-                _ => Direction.East
-            };
-
-            // Movement Animation
-            animator.SetInteger(Angle, (int)confDirection);
-        }
-
-        protected virtual void HandleAttackDelay()
-        {
-            if (TimeSinceLastAttack <= AttackDelay){ TimeSinceLastAttack += Time.deltaTime; }
+            if (TimeSinceLastAttack <= AttackDelay) TimeSinceLastAttack += Time.deltaTime;
             if (isAttacking && TimeSinceLastAttack > AttackDelay)
             {
                 TimeSinceLastAttack = 0;
@@ -95,29 +86,49 @@ namespace OnGame.Prefabs.Entities
             }
         }
 
-        protected virtual void HandleInvincibleTimeDelay()
+        private void HandleInvincibleTimeDelay()
         {
             if (!isInvincible) return;
-            
-            if(TimeSinceLastInvincible <= InvincibleTimeDelay){ TimeSinceLastInvincible += Time.deltaTime; }
-            else { isInvincible = false; TimeSinceLastInvincible = 0; }
+
+            if (TimeSinceLastInvincible <= InvincibleTimeDelay)
+            {
+                TimeSinceLastInvincible += Time.deltaTime;
+            }
+            else
+            {
+                isInvincible = false;
+                TimeSinceLastInvincible = 0;
+            }
         }
 
-        protected virtual void HandleDashCoolTime()
+        private void HandleDashCoolTime()
         {
             if (isDashAvailable) return;
 
-            if (TimeSinceLastDashed <= DashCoolTime){ TimeSinceLastDashed += Time.deltaTime; }
-            else { isDashAvailable = true; TimeSinceLastDashed = 0; }
+            if (TimeSinceLastDashed <= DashCoolTime)
+            {
+                TimeSinceLastDashed += Time.deltaTime;
+            }
+            else
+            {
+                isDashAvailable = true;
+                TimeSinceLastDashed = 0;
+            }
         }
-        
-        protected virtual void OnEarnExp(int exp) { }
-        
-        protected virtual void OnLevelUp() { }
 
-        protected virtual void OnAttack() { }
+        private void OnEarnExp(int exp)
+        {
+        }
 
-        protected virtual void OnDash()
+        private void OnLevelUp()
+        {
+        }
+
+        private void OnAttack()
+        {
+        }
+
+        private void OnDash()
         {
             if (!isAlive || !isDashAvailable) return;
 
@@ -127,47 +138,78 @@ namespace OnGame.Prefabs.Entities
             TimeSinceLastDashed = 0;
         }
 
-        protected virtual void OnGuard()
+        private void OnGuard()
         {
             if (!isAlive) return;
         }
-        
-        protected virtual void OnDamage(float damage)
+
+        private void OnDamage(float damage)
         {
             if (!isAlive || isInvincible) return;
-            
+
             var calculatedDamage = damage * (1f - defenseStat.Value / 100f);
             health.Value -= Mathf.CeilToInt(calculatedDamage);
 
             isInvincible = true;
             TimeSinceLastInvincible = 0f;
         }
-        
 
-        protected virtual void OnHealthRecover(int coef)
+
+        private void OnHealthRecover(int coef)
         {
             if (!isAlive) return;
             health.Value += coef;
         }
 
-        protected virtual void OnManaConsume(int coef)
+        private void OnManaConsume(int coef)
         {
             if (!isAlive) return;
             mana.Value -= coef;
         }
 
-        protected virtual void OnManaRecover(int coef)
+        private void OnManaRecover(int coef)
         {
             if (!isAlive) return;
             mana.Value += coef;
         }
 
-        public virtual void Die()
+        private void Die()
         {
             isAlive = false;
             rigidBody.velocity = Vector2.zero;
-            
+
             OnDeath?.Invoke();
         }
+
+        #region Basic Action Rules
+
+        private void SetUp()
+        {
+            states = new State<Character>[Enum.GetValues(typeof(PlayerStates)).Length];
+            for (var i = 0; i < states.Length; i++) states[i] = GetState((PlayerStates)i);
+            StateMachine = new StateMachine<Character>();
+            StateMachine.SetUp(this, states[(int)PlayerStates.Idle]);
+        }
+
+        private State<Character> GetState(PlayerStates state)
+        {
+            return state switch
+            {
+                PlayerStates.Idle => new IdleState(),
+                PlayerStates.Move => new MoveState(),
+                PlayerStates.Dash => new DashState(),
+                PlayerStates.Guard => new GuardState(),
+                PlayerStates.Dead => new DeadState(),
+                _ => new IdleState()
+            };
+        }
+
+        public void ChangeState(PlayerStates newState)
+        {
+            CurrentState = newState;
+            StateMachine.ChangeState(states[(int)newState]);
+        }
+
+        #endregion
     }
 }
