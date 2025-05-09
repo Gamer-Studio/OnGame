@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 namespace OnGame.Scenes.World
 {
-  public class Player : Entity
+  public class Player : MonoBehaviour
   {
     public Vector2 direction;
     public float speed = 10;
