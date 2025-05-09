@@ -19,14 +19,19 @@ namespace OnGame
 
         public void Start()
         {
+            SetupSettings();
+        }
+
+        public void SetupSettings()
+        {
             InitializeResolution();
+            OnFullscreen(true);
             resolution.onValueChanged.AddListener(OnResolution);
             masterVolume.onValueChanged.AddListener(OnMasterVolume);
             backgroundVolume.onValueChanged.AddListener(OnBackgroundVolume);
             effectVolume.onValueChanged.AddListener(OnEffectVolume);
-
         }
-        
+
         private void InitializeResolution()//가능한 해상도 불러오기
         {
             resolutions = Screen.resolutions;
@@ -66,18 +71,25 @@ namespace OnGame
         public void OnFullscreen(bool isOn)
         {
             Screen.fullScreen = isOn;
-            fullscreen.interactable = false;
-            windowscreen.interactable = true;
-            Debug.Log("전체화면");
+            fullscreen.interactable = !isOn;
+            windowscreen.interactable = isOn;
+            if (isOn==true)
+            {
+                Debug.Log("전체화면");
+            }
+            
          
         }
 
         public void OnWindowScreen(bool isOn)
         {
             Screen.fullScreen = !isOn;
-            windowscreen.interactable = false;
-            fullscreen.interactable = true;
-            Debug.Log("창모드");
+            windowscreen.interactable = !isOn;
+            fullscreen.interactable = isOn;
+            if (isOn == true)
+            {
+                Debug.Log("창모드");
+            }
         }
 
         public void OnMasterVolume(float value)
