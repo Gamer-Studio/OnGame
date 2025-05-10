@@ -106,7 +106,7 @@ namespace OnGame.Utils.States.PlayerState
     {
         public override void Enter(Character source)
         {
-            source.IsAlive = false;
+            Debug.Log("Changed to dead state");
         }
 
         public override void Execute(Character source)

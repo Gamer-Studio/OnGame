@@ -12,10 +12,20 @@ namespace OnGame.Utils.States.EnemyState
 
         public override void Execute(EnemyCharacter source)
         {
+            if (source.Target == null) return;
+            if (DistanceToTarget(source.transform.position, source.Target.position) <= source.MaxDistanceToTarget)
+            {
+                source.ChangeState(EnemyStates.Chase);
+            }
         }
 
         public override void Exit(EnemyCharacter source)
         {
+        }
+
+        private float DistanceToTarget(Vector3 origin, Vector3 target)
+        {
+            return Vector3.Distance(origin, target);
         }
     }
 
@@ -28,10 +38,23 @@ namespace OnGame.Utils.States.EnemyState
 
         public override void Execute(EnemyCharacter source)
         {
+            if (DistanceToTarget(source.transform.position, source.Target.position) > source.MaxDistanceToTarget)
+            {
+                source.ChangeState(EnemyStates.Patrol);
+            }
+            else if (DistanceToTarget(source.transform.position, source.Target.position) <= source.AttackRange)
+            {
+                source.ChangeState(EnemyStates.Attack);
+            }
         }
 
         public override void Exit(EnemyCharacter source)
         {
+        }
+        
+        private float DistanceToTarget(Vector3 origin, Vector3 target)
+        {
+            return Vector3.Distance(origin, target);
         }
     }
 
@@ -64,6 +87,7 @@ namespace OnGame.Utils.States.EnemyState
 
         public override void Exit(EnemyCharacter source)
         {
+            source.IsAlive = true;
         }
     }
 }

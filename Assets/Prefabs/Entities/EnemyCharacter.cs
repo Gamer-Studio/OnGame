@@ -36,12 +36,20 @@ namespace OnGame
         [SerializeField] private float attackDelay = 0.5f; 
         [SerializeField] private float invincibleTimeDelay = 0.5f; 
         
+        // Target of Enemy
+        [Header("Target")] 
+        [SerializeField] protected Transform target;
+        [SerializeField] protected float attackRange = 1.2f;
+        [SerializeField] protected float maxDistanceToTarget = 30f;
 
         // Properties
         public bool IsInvincible { get => isInvincible; set => isInvincible = value; }
         public bool IsAlive { get => isAlive; set => isAlive = value; }
         public bool IsAttacking { get => isAttacking; set => isAttacking = value; }
         public Animator Animator => animator;
+        public Transform Target => target;
+        public float MaxDistanceToTarget => maxDistanceToTarget;
+        public float AttackRange => attackRange;
         
         // State Machine
         private State<EnemyCharacter>[] states;
@@ -99,7 +107,7 @@ namespace OnGame
             }
         }
 
-        private void OnAttack()
+        protected virtual void OnAttack()
         {
         }
 
@@ -110,6 +118,8 @@ namespace OnGame
             var calculatedDamage = damage * (1f - defenseStat.Value / 100f);
             health.Value -= Mathf.CeilToInt(calculatedDamage);
 
+            if(health.Value <= 0) { ChangeState(EnemyStates.Dead); Die();}
+            
             isInvincible = true;
             timeSinceLastInvincible = 0f;
         }

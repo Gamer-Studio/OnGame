@@ -179,7 +179,7 @@ namespace OnGame.Prefabs.Entities
             }
         }
 
-        private void OnAttack()
+        protected virtual void OnAttack()
         {
         }
 
@@ -209,6 +209,8 @@ namespace OnGame.Prefabs.Entities
             var calculatedDamage = damage * (1f - defenseStat.Value / 100f);
             health.Value -= Mathf.CeilToInt(calculatedDamage);
 
+            if(health.Value <= 0) { ChangeState(PlayerStates.Dead); Die();}
+            
             isInvincible = true;
             timeSinceLastInvincible = 0f;
         }

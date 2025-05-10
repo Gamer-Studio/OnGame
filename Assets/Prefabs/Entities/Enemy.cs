@@ -6,7 +6,7 @@ namespace OnGame.Prefabs.Entities
     {
         // Character Field
         [Header("Character Entity")]
-        [SerializeField] private Character character;
+        [SerializeField] private EnemyCharacter character;
         
         // Physics Fields
         [Header("Physics")] 
@@ -34,6 +34,34 @@ namespace OnGame.Prefabs.Entities
             moveForce = character.MoveForce;
             
             character.Init();
+        }
+        
+        /// <summary>
+        /// Update is called every frame if the MonoBehaviour is enabled.
+        /// </summary>
+        private void Update()
+        {
+            Rotate(LookAtDirection);
+        }
+        
+        /// <summary>
+        /// Character Rotation Action
+        /// </summary>
+        /// <param name="direction"></param>
+        private void Rotate(Vector2 direction)
+        {
+            var rotZ = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+
+            var confDirection = rotZ switch
+            {
+                > 45f and < 135f => Direction.North,
+                < -45f and > -135f => Direction.South,
+                >= 135f or <= -135f => Direction.West,
+                _ => Direction.East
+            };
+
+            // Movement Animation
+            character.Animator.SetInteger(character.Angle, (int)confDirection);
         }
     }
 }
