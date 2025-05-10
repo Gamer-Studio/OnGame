@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using OnGame.Utils;
+using OnGame.Utils.States;
 using OnGame.Utils.States.PlayerState;
 using UnityEngine;
 
@@ -12,6 +13,16 @@ namespace OnGame.Prefabs.Entities
         East,
         North,
         West
+    }
+
+    public enum StatTypes
+    {
+        Health, 
+        Mana, 
+        Attack, 
+        Defense, 
+        CriticalMultiplier, 
+        CriticalPossibility,
     }
 
     public class Character : Entity
@@ -126,10 +137,44 @@ namespace OnGame.Prefabs.Entities
 
         private void OnEarnExp(int exp)
         {
+            experience.Value += exp;
         }
 
         private void OnLevelUp()
         {
+            availablePoint++;
+            health.Value += health.Max;
+            mana.Value += mana.Max;
+            experience.Value -= experience.Max;
+            MaxExperienceOpers.Add(x => x + 50);
+        }
+
+        public void OnStatusChange(StatTypes statType)
+        {
+            if (availablePoint <= 0) return;
+            availablePoint--;
+            switch (statType)
+            {
+                case StatTypes.Health:
+                    MaxHealthOpers.Add(x => x + 50);
+                    break;
+                case StatTypes.Mana:
+                    MaxManaOpers.Add(x => x + 25);
+                    break;
+                case StatTypes.Attack:
+                    AttackOpers.Add(x => x + 5);
+                    break;
+                case StatTypes.Defense:
+                    DefenseOpers.Add(x => x + 5);
+                    break;
+                case StatTypes.CriticalMultiplier:
+                    CriticalMultiplierOpers.Add(x => x + 0.1f);
+                    break;
+                case StatTypes.CriticalPossibility:
+                    CriticalPossibilityOpers.Add(x => x + 0.1f);
+                    break;
+                default: throw new NotImplementedException(); break;
+            }
         }
 
         private void OnAttack()
@@ -145,15 +190,17 @@ namespace OnGame.Prefabs.Entities
             timeSinceLastInvincible = 0;
             timeSinceLastDashed = 0;
             
-            // TODO: ChangeState를 넣어 DashState 변경 후 Animation 추가
+            ChangeState(PlayerStates.Dash);
         }
 
         private void OnGuard()
         {
             if (!isAlive) return;
+            
+            ChangeState(PlayerStates.Guard);
         }
 
-        private void OnDamage(float damage)
+        public void OnDamage(float damage)
         {
             if (!isAlive || isInvincible) return;
 
@@ -163,8 +210,7 @@ namespace OnGame.Prefabs.Entities
             isInvincible = true;
             timeSinceLastInvincible = 0f;
         }
-
-
+        
         private void OnHealthRecover(int coef)
         {
             if (!isAlive) return;
@@ -228,6 +274,7 @@ namespace OnGame.Prefabs.Entities
         /// <param name="newState"></param>
         public void ChangeState(PlayerStates newState)
         {
+            if (CurrentState == newState) return;
             CurrentState = newState;
             StateMachine.ChangeState(states[(int)newState]);
         }

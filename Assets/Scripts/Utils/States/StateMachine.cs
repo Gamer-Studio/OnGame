@@ -1,4 +1,4 @@
-namespace OnGame.Utils
+namespace OnGame.Utils.States
 {
     public class StateMachine<T> where T : class
     {

@@ -1,6 +1,8 @@
-﻿namespace OnGame.Prefabs.Entities
+﻿using UnityEngine;
+
+namespace OnGame.Prefabs.Entities
 {
-    public class Enemy : Character
+    public class Enemy : MonoBehaviour
     {
         
     }

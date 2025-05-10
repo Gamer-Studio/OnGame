@@ -44,9 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4735167e0f58eea46a09df90b30e2089, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 15
+  speed: 30
   drag: 10
-  moveForce: 30
+  moveForce: 50
   attackStat:
     baseValue: 0
   defenseStat:

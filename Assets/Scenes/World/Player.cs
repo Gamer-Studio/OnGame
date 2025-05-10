@@ -1,5 +1,6 @@
 using Cinemachine;
 using OnGame.Prefabs.Entities;
+using OnGame.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -136,7 +137,17 @@ namespace OnGame.Scenes.World
 
         private void OnMove(InputValue value)
         {
+            if (character.IsDashing) return;
             movementDirection = value.Get<Vector2>();
+        }
+
+        private void OnLook(InputValue value)
+        {
+            var mousePosition = value.Get<Vector2>();
+            var activeCamera = CinemachineCore.Instance.GetActiveBrain(0).OutputCamera;
+            Vector2 worldPos = activeCamera.ScreenToWorldPoint(mousePosition);
+
+            lookAtDirection = (worldPos - (Vector2)transform.position).normalized;
         }
 
         private void OnZoom(InputValue value)
@@ -164,6 +175,13 @@ namespace OnGame.Scenes.World
             character.IsAttacking = value.Get<float>() > 0;
         }
 
+        private void OnGuard(InputValue value)
+        {
+            var val = value.Get<float>();
+            Debug.Log(val);
+            character.ChangeState(val > 0 ? PlayerStates.Guard : PlayerStates.Idle);
+        }
+        
         #endregion
     }
 }
