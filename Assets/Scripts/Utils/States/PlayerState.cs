@@ -88,6 +88,7 @@ namespace OnGame.Utils.States.PlayerState
 
         public override void Execute(Character source)
         {
+            source.Animator.SetBool(source.IsMove, !(source.RigidBody.velocity.magnitude < 0.1f));
             if(source.Mana.Value <= 0) source.ChangeState(PlayerStates.Idle);
             
             // TODO: Mana가 일정량 소모되도록 코드 작성 필요
@@ -105,6 +106,7 @@ namespace OnGame.Utils.States.PlayerState
     {
         public override void Enter(Character source)
         {
+            source.IsAlive = false;
         }
 
         public override void Execute(Character source)
@@ -113,6 +115,7 @@ namespace OnGame.Utils.States.PlayerState
 
         public override void Exit(Character source)
         {
+            source.IsAlive = true;
         }
     }
 }

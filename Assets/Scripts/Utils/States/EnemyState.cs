@@ -3,66 +3,66 @@ using UnityEngine;
 
 namespace OnGame.Utils.States.EnemyState
 {
-    public class PatrolState : State<Enemy>
+    public class PatrolState : State<EnemyCharacter>
     {
-        public override void Enter(Enemy source)
+        public override void Enter(EnemyCharacter source)
         {
             Debug.Log("Changed to patrol state");
         }
 
-        public override void Execute(Enemy source)
+        public override void Execute(EnemyCharacter source)
         {
         }
 
-        public override void Exit(Enemy source)
+        public override void Exit(EnemyCharacter source)
         {
         }
     }
 
-    public class ChaseState : State<Enemy>
+    public class ChaseState : State<EnemyCharacter>
     {
-        public override void Enter(Enemy source)
+        public override void Enter(EnemyCharacter source)
         {
             Debug.Log("Changed to chase state");
         }
 
-        public override void Execute(Enemy source)
+        public override void Execute(EnemyCharacter source)
         {
         }
 
-        public override void Exit(Enemy source)
+        public override void Exit(EnemyCharacter source)
         {
         }
     }
 
-    public class AttackState : State<Enemy>
+    public class AttackState : State<EnemyCharacter>
     {
-        public override void Enter(Enemy source)
+        public override void Enter(EnemyCharacter source)
         {
             Debug.Log("Changed to attack state");
         }
 
-        public override void Execute(Enemy source)
+        public override void Execute(EnemyCharacter source)
         {
         }
 
-        public override void Exit(Enemy source)
+        public override void Exit(EnemyCharacter source)
         {
         }
     }
 
-    public class DeadState : State<Enemy>
+    public class DeadState : State<EnemyCharacter>
     {
-        public override void Enter(Enemy source)
+        public override void Enter(EnemyCharacter source)
         {
             Debug.Log("Changed to dead state");
         }
 
-        public override void Execute(Enemy source)
+        public override void Execute(EnemyCharacter source)
         {
         }
 
-        public override void Exit(Enemy source)
+        public override void Exit(EnemyCharacter source)
         {
         }
     }

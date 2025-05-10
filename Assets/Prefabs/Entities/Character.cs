@@ -17,7 +17,7 @@ namespace OnGame.Prefabs.Entities
 
     public enum StatTypes
     {
-        Health, 
+        Health,
         Mana, 
         Attack, 
         Defense, 
@@ -26,10 +26,12 @@ namespace OnGame.Prefabs.Entities
     }
 
     public class Character : Entity
-    {   // Const Fields
+    {   
+        // Const Fields
         public readonly int Angle = Animator.StringToHash("Direction");
         public readonly int IsDamage = Animator.StringToHash("IsDamage");
         public readonly int IsMove = Animator.StringToHash("IsMove");
+        
         // Component Fields
         [Header("Components")]
         [SerializeField] protected Animator animator;
@@ -43,8 +45,7 @@ namespace OnGame.Prefabs.Entities
         [SerializeField] [GetSet("IsDashing")] private bool isDashing;
         
         // Stats Fields
-        private int availablePoint = 0;
-        private float originalSpeed;
+        private int availablePoint;
         
         // Cooldown Fields
         [Header("Cooldowns")]
@@ -75,6 +76,8 @@ namespace OnGame.Prefabs.Entities
         
         private void Awake()
         {
+            if (animator == null) animator = Helper.GetComponentInChildren_Helper<Animator>(gameObject);
+            
             // Sets Player States
             SetUp();
         }

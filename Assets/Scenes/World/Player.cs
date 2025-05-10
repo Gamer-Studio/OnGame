@@ -25,10 +25,6 @@ namespace OnGame.Scenes.World
         [SerializeField] protected Vector2 lookAtDirection = Vector2.zero;
         [SerializeField] protected Vector2 movementDirection = Vector2.zero;
         
-        // Fields
-        [Header("Common Fields")]
-        [Range(0.1f, 10f)] [SerializeField] private float maxDashDistance = 5f;
-        
         private Rigidbody2D rigidBody;
         private float speed;
         private float drag;
@@ -68,7 +64,7 @@ namespace OnGame.Scenes.World
 
         private void FixedUpdate()
         {
-            Movement(movementDirection);
+            Movement(MovementDirection);
         }
 
         /// <summary>
