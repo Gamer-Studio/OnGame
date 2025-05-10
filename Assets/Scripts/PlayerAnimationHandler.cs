@@ -1,17 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using OnGame.Prefabs.Entities;
 using UnityEngine;
 
 namespace OnGame
 {
-    public enum Direction
-    {
-        South = 0,
-        East = 1,
-        North = 2,
-        West = 3
-    }
     public class PlayerAnimationHandler : MonoBehaviour
     {
         private Animator animator;
@@ -42,7 +36,6 @@ namespace OnGame
             }
 
             ApplyToAnimator();
-
         }
 
         public void SetDamaged(bool damaged)

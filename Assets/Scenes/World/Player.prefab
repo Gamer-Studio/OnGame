@@ -44,8 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4735167e0f58eea46a09df90b30e2089, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
-  drag: 0
+  speed: 30
+  drag: 10
+  moveForce: 50
   attackStat:
     baseValue: 0
   defenseStat:
@@ -56,7 +57,7 @@ MonoBehaviour:
         m_Calls: []
     value: 0
     max:
-      baseValue: 0
+      baseValue: 100
     maxValue: 0
   mana:
     onChanged:
@@ -64,7 +65,7 @@ MonoBehaviour:
         m_Calls: []
     value: 0
     max:
-      baseValue: 0
+      baseValue: 50
     maxValue: 0
   experience:
     onChanged:
@@ -72,17 +73,25 @@ MonoBehaviour:
         m_Calls: []
     value: 0
     max:
-      baseValue: 0
+      baseValue: 100
     maxValue: 0
   CriticalMultiplier:
     baseValue: 0
   CriticalPossibility:
     baseValue: 0
+  rigidBody: {fileID: 7536149012215300990}
+  animator: {fileID: 5731273630303561094}
   isInvincible: 0
   isAlive: 1
-  isDashing: 0
   isAttacking: 0
   isInteracting: 0
+  isDashing: 0
+  timeSinceLastAttack: 3.4028235e+38
+  timeSinceLastDashed: 3.4028235e+38
+  timeSinceLastInvincible: 3.4028235e+38
+  attackDelay: 0.5
+  dashCoolTime: 5
+  invincibleTimeDelay: 0.5
 --- !u!1 &6119227385711252306
 GameObject:
   m_ObjectHideFlags: 0
@@ -168,9 +177,9 @@ MonoBehaviour:
   zoomSpeed: 1
   minZoom: 3
   maxZoom: 10
-  maxDashDistance: 5
   lookAtDirection: {x: 0, y: 0}
   movementDirection: {x: 0, y: 0}
+  maxDashDistance: 5
 --- !u!50 &7536149012215300990
 Rigidbody2D:
   serializedVersion: 4
@@ -186,7 +195,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 10
   m_AngularDrag: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -316,7 +325,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
+  m_Sprite: {fileID: -1394222309, guid: 516a06a92222cd646bb9f9dfbe3cb2b7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

@@ -1,5 +1,6 @@
 using Cinemachine;
 using OnGame.Prefabs.Entities;
+using OnGame.Utils;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -24,10 +25,6 @@ namespace OnGame.Scenes.World
         [SerializeField] protected Vector2 lookAtDirection = Vector2.zero;
         [SerializeField] protected Vector2 movementDirection = Vector2.zero;
         
-        // Fields
-        [Header("Common Fields")]
-        [Range(0.1f, 10f)] [SerializeField] private float maxDashDistance = 5f;
-        
         private Rigidbody2D rigidBody;
         private float speed;
         private float drag;
@@ -39,12 +36,15 @@ namespace OnGame.Scenes.World
         // Properties
         public Vector2 MovementDirection => movementDirection;
         public Vector2 LookAtDirection => lookAtDirection;
+        public Character Character => character;
 
         /// <summary>
         /// Start is called on the frame when a script is enabled just before
         /// </summary>
         private void Start()
         {
+            character.Init();
+            
             rigidBody = character.RigidBody;
             speed = character.Speed;
             drag = character.Drag;
@@ -59,13 +59,13 @@ namespace OnGame.Scenes.World
         /// </summary>
         private void Update()
         {
-            Rotate(MovementDirection);
+            Rotate(LookAtDirection);
             CalculateCamZoom();
         }
 
         private void FixedUpdate()
         {
-            Movement(movementDirection);
+            Movement(MovementDirection);
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace OnGame.Scenes.World
         /// <param name="direction"></param>
         private void Movement(Vector2 direction)
         {
-            if(character.RigidBody.velocity.magnitude > speed)
+            if(rigidBody.velocity.magnitude > speed)
             {
                 rigidBody.velocity *= (speed / rigidBody.velocity.magnitude);    
             }
@@ -134,7 +134,17 @@ namespace OnGame.Scenes.World
 
         private void OnMove(InputValue value)
         {
+            if (character.IsDashing) return;
             movementDirection = value.Get<Vector2>();
+        }
+
+        private void OnLook(InputValue value)
+        {
+            var mousePosition = value.Get<Vector2>();
+            var activeCamera = CinemachineCore.Instance.GetActiveBrain(0).OutputCamera;
+            Vector2 worldPos = activeCamera.ScreenToWorldPoint(mousePosition);
+
+            lookAtDirection = (worldPos - (Vector2)transform.position).normalized;
         }
 
         private void OnZoom(InputValue value)
@@ -150,14 +160,25 @@ namespace OnGame.Scenes.World
             var val = value.Get<float>();
             if (val <= 0f) return;
             character.OnDash();
-            rigidBody.AddForce(movementDirection * character.Speed * 10f, ForceMode2D.Impulse);
+            if(movementDirection == Vector2.zero) 
+                rigidBody.AddForce(lookAtDirection * character.Speed * 10f, ForceMode2D.Impulse);
+            else rigidBody.AddForce(movementDirection * character.Speed * 10f, ForceMode2D.Impulse);
         }
 
         private void OnFire(InputValue value)
         {
-            character.IsAttacking = value.Get<float>() > 0f;
+            var val = value.Get<float>();
+            Debug.Log(val);
+            character.IsAttacking = value.Get<float>() > 0;
         }
 
+        private void OnGuard(InputValue value)
+        {
+            var val = value.Get<float>();
+            Debug.Log(val);
+            character.ChangeState(val > 0 ? PlayerStates.Guard : PlayerStates.Idle);
+        }
+        
         #endregion
     }
 }

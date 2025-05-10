@@ -1,6 +1,8 @@
 #nullable enable
 using System;
+using OnGame.Scenes.World;
 using OnGame.Utils;
+using OnGame.Utils.States;
 using OnGame.Utils.States.PlayerState;
 using UnityEngine;
 
@@ -14,11 +16,23 @@ namespace OnGame.Prefabs.Entities
         West
     }
 
+    public enum StatTypes
+    {
+        Health,
+        Mana, 
+        Attack, 
+        Defense, 
+        CriticalMultiplier, 
+        CriticalPossibility,
+    }
+
     public class Character : Entity
-    {   // Const Fields
+    {   
+        // Const Fields
         public readonly int Angle = Animator.StringToHash("Direction");
         public readonly int IsDamage = Animator.StringToHash("IsDamage");
         public readonly int IsMove = Animator.StringToHash("IsMove");
+        
         // Component Fields
         [Header("Components")]
         [SerializeField] protected Animator animator;
@@ -27,12 +41,12 @@ namespace OnGame.Prefabs.Entities
         [Header("States")] 
         [SerializeField] [GetSet("IsInvincible")] private bool isInvincible;
         [SerializeField] [GetSet("IsAlive")] private bool isAlive = true;
-        [SerializeField] [GetSet("IsAttacking")] private bool isAttacking;
+        [SerializeField] [GetSet("IsAttacking")] private bool isAttacking = false;
         [SerializeField] [GetSet("IsInteracting")] private bool isInteracting;
         [SerializeField] [GetSet("IsDashing")] private bool isDashing;
         
         // Stats Fields
-        private float originalSpeed;
+        private int availablePoint;
         
         // Cooldown Fields
         [Header("Cooldowns")]
@@ -57,13 +71,21 @@ namespace OnGame.Prefabs.Entities
         private State<Character>[] states;
         public PlayerStates CurrentState { get; private set; } = PlayerStates.Idle;
         public StateMachine<Character> StateMachine { get; private set; }
-
+        
+        // Action event
+        public event Action? OnDeath;
+        
         private void Awake()
         {
+            if (animator == null) animator = Helper.GetComponentInChildren_Helper<Animator>(gameObject);
+            
             // Sets Player States
             SetUp();
         }
 
+        /// <summary>
+        /// Update is called every frame if the MonoBehaviour is enabled.
+        /// </summary>
         protected override void Update()
         {
             base.Update();
@@ -74,20 +96,28 @@ namespace OnGame.Prefabs.Entities
             // State Machine
             StateMachine.Execute();
         }
-
-        // Action event
-        public event Action? OnDeath;
-
+        
+        /// <summary>
+        /// Handle Attack Delay
+        /// </summary>
         private void HandleAttackDelay()
         {
-            if (timeSinceLastAttack <= attackDelay) timeSinceLastAttack += Time.deltaTime;
-            if (isAttacking && timeSinceLastAttack > attackDelay)
+            if (!isAttacking) return;
+
+            if (timeSinceLastAttack <= attackDelay)
+            {
+                timeSinceLastAttack += Time.deltaTime;
+            }
+            else
             {
                 timeSinceLastAttack = 0;
                 OnAttack();
             }
         }
 
+        /// <summary>
+        /// Handle Invincibility Delay
+        /// </summary>
         private void HandleInvincibleTimeDelay()
         {
             if (!isInvincible) return;
@@ -103,6 +133,9 @@ namespace OnGame.Prefabs.Entities
             }
         }
 
+        /// <summary>
+        /// Handle CoolTime of Dash Skill
+        /// </summary>
         private void HandleDashCoolTime()
         {
             if (IsDashAvailable) return;
@@ -118,47 +151,118 @@ namespace OnGame.Prefabs.Entities
             }
         }
 
+        /// <summary>
+        /// Called when Player earned exp point
+        /// </summary>
+        /// <param name="exp"></param>
         private void OnEarnExp(int exp)
         {
+            experience.Value += exp;
         }
 
+        /// <summary>
+        /// Called when Player level ups
+        /// </summary>
         private void OnLevelUp()
         {
+            availablePoint++;
+            health.Value += health.Max;
+            mana.Value += mana.Max;
+            experience.Value -= experience.Max;
+            MaxExperienceOpers.Add(x => x + 50);
         }
 
-        private void OnAttack()
+        /// <summary>
+        /// Change Stat. By type
+        /// </summary>
+        /// <param name="statType"></param>
+        public void OnStatusChange(StatTypes statType)
+        {
+            if (availablePoint <= 0) return;
+            availablePoint--;
+            switch (statType)
+            {
+                case StatTypes.Health:
+                    MaxHealthOpers.Add(x => x + 50);
+                    break;
+                case StatTypes.Mana:
+                    MaxManaOpers.Add(x => x + 25);
+                    break;
+                case StatTypes.Attack:
+                    AttackOpers.Add(x => x + 5);
+                    break;
+                case StatTypes.Defense:
+                    DefenseOpers.Add(x => x + 5);
+                    break;
+                case StatTypes.CriticalMultiplier:
+                    CriticalMultiplierOpers.Add(x => x + 0.1f);
+                    break;
+                case StatTypes.CriticalPossibility:
+                    CriticalPossibilityOpers.Add(x => x + 0.1f);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Called when Player attacks
+        /// </summary>
+        protected virtual void OnAttack()
         {
         }
+        
+        /// <summary>
+        /// Apply Knockback to Enemy
+        /// </summary>
+        /// <param name="other"></param>
+        /// <param name="power"></param>
+        public void ApplyKnockBack(Transform other, float power)
+        {
+            rigidBody.AddForce(-(other.position - transform.position).normalized * power, ForceMode2D.Impulse);
+        }
 
+        /// <summary>
+        /// Called when Player used Dash Skill
+        /// </summary>
         public void OnDash()
         {
-            if (!isAlive || !IsDashAvailable) return;
+            if (!isAlive || !IsDashAvailable || mana.Value <= 0) return;
 
             IsDashAvailable = false;
             isInvincible = true;
             timeSinceLastInvincible = 0;
             timeSinceLastDashed = 0;
             
-            // TODO: ChangeState를 넣어 DashState 변경 후 Animation 추가
+            ChangeState(PlayerStates.Dash);
         }
 
+        /// <summary>
+        /// Called when Player used Guard Skill
+        /// </summary>
         private void OnGuard()
         {
             if (!isAlive) return;
+            
+            ChangeState(PlayerStates.Guard);
         }
 
-        private void OnDamage(float damage)
+        /// <summary>
+        /// Called when Player got damage
+        /// </summary>
+        /// <param name="damage"></param>
+        public void OnDamage(float damage)
         {
             if (!isAlive || isInvincible) return;
 
             var calculatedDamage = damage * (1f - defenseStat.Value / 100f);
             health.Value -= Mathf.CeilToInt(calculatedDamage);
-
+            if (CurrentState == PlayerStates.Guard) mana.Value -= Mathf.CeilToInt(calculatedDamage) / 2;
+            
+            if(health.Value <= 0) { ChangeState(PlayerStates.Dead); Die();}
+            
             isInvincible = true;
             timeSinceLastInvincible = 0f;
         }
-
-
+        
         private void OnHealthRecover(int coef)
         {
             if (!isAlive) return;
@@ -222,6 +326,7 @@ namespace OnGame.Prefabs.Entities
         /// <param name="newState"></param>
         public void ChangeState(PlayerStates newState)
         {
+            if (CurrentState == newState) return;
             CurrentState = newState;
             StateMachine.ChangeState(states[(int)newState]);
         }

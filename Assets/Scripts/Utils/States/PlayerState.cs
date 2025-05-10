@@ -1,4 +1,5 @@
-﻿using OnGame.Prefabs.Entities;
+﻿using System.Collections;
+using OnGame.Prefabs.Entities;
 using UnityEngine;
 
 namespace OnGame.Utils.States.PlayerState
@@ -13,7 +14,7 @@ namespace OnGame.Utils.States.PlayerState
 
         public override void Execute(Character source)
         {
-            if (source.RigidBody.velocity.magnitude >= 0.5f) source.ChangeState(PlayerStates.Move);
+            if (source.RigidBody.velocity.magnitude >= 0.1f) source.ChangeState(PlayerStates.Move);
         }
 
         public override void Exit(Character source)
@@ -32,7 +33,7 @@ namespace OnGame.Utils.States.PlayerState
 
         public override void Execute(Character source)
         {
-            if (source.RigidBody.velocity.magnitude < 0.5f) source.ChangeState(PlayerStates.Idle);
+            if (source.RigidBody.velocity.magnitude < 0.1f) source.ChangeState(PlayerStates.Idle);
         }
 
         public override void Exit(Character source)
@@ -46,38 +47,57 @@ namespace OnGame.Utils.States.PlayerState
         public override void Enter(Character source)
         {
             Debug.Log("Changed to dash state");
+            source.IsDashing = true;
         }
 
         public override void Execute(Character source)
         {
+            source.StartCoroutine(WaitUntilDashEnd(source));
         }
 
         public override void Exit(Character source)
         {
+            source.IsDashing = false;
+        }
+
+        IEnumerator WaitUntilDashEnd(Character source)
+        {
+            yield return new WaitForSeconds(0.2f);
+            source.ChangeState(PlayerStates.Move);
         }
     }
 
     public class GuardState : State<Character>
     {
         private StatOperator<float> guardOperator;
-        private float originalSpeed;
+        private float originalForce;
+        private float originalDrag;
 
         public override void Enter(Character source)
         {
             Debug.Log("Changed to guard state");
-            originalSpeed = source.Speed;
-            source.Speed /= 2;
-            guardOperator = x => x * 5f;
+            originalForce = source.MoveForce;
+            originalDrag = source.Drag;
+
+            source.RigidBody.drag = originalDrag * 2f;
+            source.MoveForce *= 0.3f;
+            
+            guardOperator = x => x + x * 0.8f;
             source.DefenseOpers.Add(guardOperator);
         }
 
         public override void Execute(Character source)
         {
+            source.Animator.SetBool(source.IsMove, !(source.RigidBody.velocity.magnitude < 0.1f));
+            if(source.Mana.Value <= 0) source.ChangeState(PlayerStates.Idle);
+            
+            // TODO: Mana가 일정량 소모되도록 코드 작성 필요
         }
 
         public override void Exit(Character source)
         {
-            source.Speed = originalSpeed;
+            source.MoveForce = originalForce;
+            source.RigidBody.drag = originalDrag;
             source.DefenseOpers.Remove(guardOperator);
         }
     }
@@ -86,6 +106,7 @@ namespace OnGame.Utils.States.PlayerState
     {
         public override void Enter(Character source)
         {
+            Debug.Log("Changed to dead state");
         }
 
         public override void Execute(Character source)
@@ -94,6 +115,7 @@ namespace OnGame.Utils.States.PlayerState
 
         public override void Exit(Character source)
         {
+            source.IsAlive = true;
         }
     }
 }
