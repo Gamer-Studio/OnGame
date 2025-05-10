@@ -222,7 +222,7 @@ MonoBehaviour:
     - {fileID: -1505387005, guid: 5b4aa4cc2603f2b478dec1f16a2c2f44, type: 3}
     - {fileID: 1918783270, guid: 5b4aa4cc2603f2b478dec1f16a2c2f44, type: 3}
     - {fileID: 1677284739, guid: 5b4aa4cc2603f2b478dec1f16a2c2f44, type: 3}
-    - {fileID: -1505387005, guid: 5b4aa4cc2603f2b478dec1f16a2c2f44, type: 3}
+    - {fileID: -521279163, guid: 5b4aa4cc2603f2b478dec1f16a2c2f44, type: 3}
     m_GameObject: {fileID: 0}
     m_MinAnimationSpeed: 1
     m_MaxAnimationSpeed: 1
