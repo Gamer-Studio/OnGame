@@ -20,7 +20,7 @@ namespace OnGame
 
         private void Awake()
         {
-            spriteRenderer = GetComponent<SpriteRenderer>();
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             if (spriteRenderer != null)
                 originalColor = spriteRenderer.color;
 
