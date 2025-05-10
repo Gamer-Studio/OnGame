@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using OnGame.Prefabs.Entities;
+using OnGame.Scenes.World;
 using OnGame.Utils;
 using OnGame.Utils.States;
 using OnGame.Utils.States.EnemyState;
@@ -38,7 +39,7 @@ namespace OnGame
         
         // Target of Enemy
         [Header("Target")] 
-        [SerializeField] protected Transform target;
+        [SerializeField] protected Character target;
         [SerializeField] protected float attackRange = 1.2f;
         [SerializeField] protected float maxDistanceToTarget = 30f;
 
@@ -47,7 +48,8 @@ namespace OnGame
         public bool IsAlive { get => isAlive; set => isAlive = value; }
         public bool IsAttacking { get => isAttacking; set => isAttacking = value; }
         public Animator Animator => animator;
-        public Transform Target => target;
+        
+        public Character Target => target;
         public float MaxDistanceToTarget => maxDistanceToTarget;
         public float AttackRange => attackRange;
         
@@ -70,13 +72,67 @@ namespace OnGame
         protected override void Update()
         {
             base.Update();
+            Rotate(rigidBody.velocity.normalized);
             HandleAttackDelay();
             HandleInvincibleTimeDelay();
 
             // State Machine
             StateMachine.Execute();
         }
+
+        private void FixedUpdate()
+        {
+            if (CurrentState != EnemyStates.Chase) return;
+            if (target == null) return;
+            Move(DirectionToTarget());
+        }
+
+        /// <summary>
+        /// Move Enemy Character
+        /// </summary>
+        /// <param name="direction"></param>
+        public void Move(Vector2 direction)
+        {
+            if(rigidBody.velocity.magnitude > speed)
+            {
+                rigidBody.velocity *= (speed / rigidBody.velocity.magnitude);    
+            }
+
+            rigidBody.AddForce(direction.normalized * moveForce, ForceMode2D.Force);
+        }
         
+        /// <summary>
+        /// Character Rotation Action
+        /// </summary>
+        /// <param name="direction"></param>
+        private void Rotate(Vector2 direction)
+        {
+            var rotZ = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+
+            var confDirection = rotZ switch
+            {
+                > 45f and < 135f => Direction.North,
+                < -45f and > -135f => Direction.South,
+                >= 135f or <= -135f => Direction.West,
+                _ => Direction.East
+            };
+
+            // Movement Animation
+            animator.SetInteger(Angle, (int)confDirection);
+        }
+        
+        /// <summary>
+        /// Calculate Direction to target
+        /// </summary>
+        /// <returns></returns>
+        private Vector3 DirectionToTarget()
+        {
+            return (target.transform.position - transform.position).normalized;
+        }
+        
+        /// <summary>
+        /// Handle Attack Delay
+        /// </summary>
         private void HandleAttackDelay()
         {
             if (!isAttacking) return;
@@ -92,6 +148,9 @@ namespace OnGame
             }
         }
 
+        /// <summary>
+        /// Handle Invincibility Delay
+        /// </summary>
         private void HandleInvincibleTimeDelay()
         {
             if (!isInvincible) return;
@@ -109,6 +168,16 @@ namespace OnGame
 
         protected virtual void OnAttack()
         {
+        }
+        
+        /// <summary>
+        /// Apply Knockback Force to player
+        /// </summary>
+        /// <param name="other"></param>
+        /// <param name="power"></param>
+        public void ApplyKnockBack(Transform other, float power) 
+        { 
+            rigidBody.AddForce(-(other.position - transform.position).normalized * power, ForceMode2D.Impulse);
         }
 
         public void OnDamage(float damage)
