@@ -18,7 +18,7 @@ namespace OnGame.Utils
 
     public RangedStat(int maxValue, int value, StatOperator<int> maxOper = null)
     {
-      Max = maxValue;
+      max = new Stat<int>(maxValue);
       Value = value;
       MaxOper = maxOper;
     }
