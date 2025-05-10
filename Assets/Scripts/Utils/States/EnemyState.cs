@@ -13,7 +13,7 @@ namespace OnGame.Utils.States.EnemyState
         public override void Execute(EnemyCharacter source)
         {
             if (source.Target == null) return;
-            if (DistanceToTarget(source.transform.position, source.Target.position) <= source.MaxDistanceToTarget)
+            if (DistanceToTarget(source.transform.position, source.Target.transform.position) <= source.MaxDistanceToTarget)
             {
                 source.ChangeState(EnemyStates.Chase);
             }
@@ -38,11 +38,13 @@ namespace OnGame.Utils.States.EnemyState
 
         public override void Execute(EnemyCharacter source)
         {
-            if (DistanceToTarget(source.transform.position, source.Target.position) > source.MaxDistanceToTarget)
+            if (source.Target == null) source.ChangeState(EnemyStates.Patrol);
+            if (!source.Target.IsAlive) source.ChangeState(EnemyStates.Patrol);
+            if (DistanceToTarget(source.transform.position, source.Target.transform.position) > source.MaxDistanceToTarget)
             {
                 source.ChangeState(EnemyStates.Patrol);
             }
-            else if (DistanceToTarget(source.transform.position, source.Target.position) <= source.AttackRange)
+            else if (DistanceToTarget(source.transform.position, source.Target.transform.position) <= source.AttackRange)
             {
                 source.ChangeState(EnemyStates.Attack);
             }
@@ -67,10 +69,21 @@ namespace OnGame.Utils.States.EnemyState
 
         public override void Execute(EnemyCharacter source)
         {
+            if (source.Target == null) source.ChangeState(EnemyStates.Patrol);
+            if (!source.Target.IsAlive) source.ChangeState(EnemyStates.Patrol);
+            if (DistanceToTarget(source.transform.position, source.Target.transform.position) > source.AttackRange)
+            {
+                source.ChangeState(EnemyStates.Chase);
+            }
         }
 
         public override void Exit(EnemyCharacter source)
         {
+        }
+        
+        private float DistanceToTarget(Vector3 origin, Vector3 target)
+        {
+            return Vector3.Distance(origin, target);
         }
     }
 

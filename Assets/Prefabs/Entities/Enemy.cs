@@ -21,47 +21,20 @@ namespace OnGame.Prefabs.Entities
         // Properties
         public Vector2 MovementDirection => movementDirection;
         public Vector2 LookAtDirection => lookAtDirection;
+        public EnemyCharacter Character => character;
         
         /// <summary>
         /// Start is called on the frame when a script is enabled just before
         /// </summary>
         private void Start()
         {
+            character.Init();
+            
             rigidBody = character.RigidBody;
             speed = character.Speed;
             drag = character.Drag;
             rigidBody.drag = drag;
             moveForce = character.MoveForce;
-            
-            character.Init();
-        }
-        
-        /// <summary>
-        /// Update is called every frame if the MonoBehaviour is enabled.
-        /// </summary>
-        private void Update()
-        {
-            Rotate(LookAtDirection);
-        }
-        
-        /// <summary>
-        /// Character Rotation Action
-        /// </summary>
-        /// <param name="direction"></param>
-        private void Rotate(Vector2 direction)
-        {
-            var rotZ = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-
-            var confDirection = rotZ switch
-            {
-                > 45f and < 135f => Direction.North,
-                < -45f and > -135f => Direction.South,
-                >= 135f or <= -135f => Direction.West,
-                _ => Direction.East
-            };
-
-            // Movement Animation
-            character.Animator.SetInteger(character.Angle, (int)confDirection);
         }
     }
 }

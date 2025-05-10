@@ -36,12 +36,15 @@ namespace OnGame.Scenes.World
         // Properties
         public Vector2 MovementDirection => movementDirection;
         public Vector2 LookAtDirection => lookAtDirection;
+        public Character Character => character;
 
         /// <summary>
         /// Start is called on the frame when a script is enabled just before
         /// </summary>
         private void Start()
         {
+            character.Init();
+            
             rigidBody = character.RigidBody;
             speed = character.Speed;
             drag = character.Drag;
@@ -49,8 +52,6 @@ namespace OnGame.Scenes.World
             moveForce = character.MoveForce;
             currentZoom = cam.m_Lens.OrthographicSize;
             newZoom = currentZoom;
-            
-            character.Init();
         }
 
         /// <summary>
@@ -82,7 +83,7 @@ namespace OnGame.Scenes.World
         /// <param name="direction"></param>
         private void Movement(Vector2 direction)
         {
-            if(character.RigidBody.velocity.magnitude > speed)
+            if(rigidBody.velocity.magnitude > speed)
             {
                 rigidBody.velocity *= (speed / rigidBody.velocity.magnitude);    
             }
