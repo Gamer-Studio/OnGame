@@ -41,6 +41,7 @@ namespace OnGame.Prefabs.Entities
         public float Speed { get => speed; set => speed = value; }
         public float Drag => drag;
         public float MoveForce { get => moveForce; set => moveForce = value; }
+        public RangedStat Mana => mana;
 
         protected virtual void Update()
         {

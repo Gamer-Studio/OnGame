@@ -88,7 +88,9 @@ namespace OnGame.Utils.States.PlayerState
 
         public override void Execute(Character source)
         {
-            // TODO: Mp 소모 코드 작성 및 Mp를 모두 소모 했을 때 가드가 불가능하도록 설정
+            if(source.Mana.Value <= 0) source.ChangeState(PlayerStates.Idle);
+            
+            // TODO: Mana가 일정량 소모되도록 코드 작성 필요
         }
 
         public override void Exit(Character source)

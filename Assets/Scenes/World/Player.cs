@@ -62,7 +62,7 @@ namespace OnGame.Scenes.World
         /// </summary>
         private void Update()
         {
-            Rotate(MovementDirection);
+            Rotate(LookAtDirection);
             CalculateCamZoom();
         }
 

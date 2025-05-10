@@ -69,7 +69,10 @@ namespace OnGame.Prefabs.Entities
         private State<Character>[] states;
         public PlayerStates CurrentState { get; private set; } = PlayerStates.Idle;
         public StateMachine<Character> StateMachine { get; private set; }
-
+        
+        // Action event
+        public event Action? OnDeath;
+        
         private void Awake()
         {
             // Sets Player States
@@ -86,10 +89,7 @@ namespace OnGame.Prefabs.Entities
             // State Machine
             StateMachine.Execute();
         }
-
-        // Action event
-        public event Action? OnDeath;
-
+        
         private void HandleAttackDelay()
         {
             if (!isAttacking) return;
@@ -173,7 +173,6 @@ namespace OnGame.Prefabs.Entities
                 case StatTypes.CriticalPossibility:
                     CriticalPossibilityOpers.Add(x => x + 0.1f);
                     break;
-                default: throw new NotImplementedException(); break;
             }
         }
 
@@ -183,7 +182,7 @@ namespace OnGame.Prefabs.Entities
 
         public void OnDash()
         {
-            if (!isAlive || !IsDashAvailable) return;
+            if (!isAlive || !IsDashAvailable || mana.Value <= 0) return;
 
             IsDashAvailable = false;
             isInvincible = true;
